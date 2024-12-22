@@ -1,0 +1,5 @@
+---
+- name: Install and configure Active Directory Domain Services
+  hosts: windows
+  roles:
+    - ad
