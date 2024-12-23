@@ -1,5 +1,15 @@
 ---
-- name: Install and configure Active Directory Domain Services
+- name: Install and configure Active Directory Domain Services and Install Microsoft Certification Authority on Windows Server
   hosts: windows
+#  vars: 
+#    domain_name: "rafael.local" 
+#    safe_mode_password: "{{ lookup('env', 'AD_SAFE') }}"
   roles:
     - ad
+    - ca
+    - export_cert
+
+- name: Install Splunk Standalone on Linux
+  hosts: linux
+  roles:
+    - install_splunk

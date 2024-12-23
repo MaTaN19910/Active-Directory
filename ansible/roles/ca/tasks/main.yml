@@ -1,0 +1,27 @@
+---
+# roles/ca/tasks/main.yml
+
+- name: Install AD CS Role
+  win_feature:
+    name: ADCS-Cert-Authority
+    state: present
+  tags: 
+    - ca
+
+- name: Configure Certificate Authority
+  win_shell: |
+    $commonName = "MyCA"
+    $distinguishedName = "CN=$commonName,DC=rafael,DC=local"
+    Install-AdcsCertificationAuthority -CAType EnterpriseRootCA -CACommonName "$commonName" -CADistinguishedName "$distinguishedName" -KeyLength 2048 -HashAlgorithm SHA256 -CryptoProviderName "RSA#Microsoft Software Key Storage Provider" -KeySpec 1
+  args:
+    executable: powershell.exe
+  tags: 
+    - ca
+
+- name: Start Certificate Authority Service
+  win_service:
+    name: CertSvc
+    start_mode: auto
+    state: started
+  tags: 
+    - ca

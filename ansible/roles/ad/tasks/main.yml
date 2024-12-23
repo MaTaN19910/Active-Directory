@@ -9,14 +9,6 @@
   args:
     executable: powershell.exe
 
-#- name: Promote server to domain controller
-#  win_shell: |
-#    Install-ADDSForest `
-#      -DomainName "rafael.local" `
-#      -SafeModeAdministratorPassword (ConvertTo-SecureString "{{ lookup('env', 'AD_SAFE') }}" -AsPlainText -Force)`
-#      -InstallDNS
-#  args:
-#    executable: powershell.exe
 - name: Promote server to domain controller
   win_shell: |
     $password = ConvertTo-SecureString -String "{{ lookup('env', 'AD_SAFE') }}" -AsPlainText -Force
@@ -27,6 +19,10 @@
       -Force
   args:
     executable: powershell.exe
+
+- name: Restart the server to apply changes 
+  win_reboot: 
+    msg: "Restarting the server to complete AD DS installation."
 - name: Gather AD DS facts
   ansible.windows.win_command: Get-ADDomain
 

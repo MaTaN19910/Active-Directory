@@ -1,0 +1,15 @@
+---
+# roles/export_cert/tasks/main.yml
+
+- name: Export Root CA certificate
+  win_shell: |
+    $Cert = Get-ChildItem -Path Cert:\LocalMachine\CA\MyCA
+    $Cert | Export-Certificate -FilePath C:\CA\MyCARootCert.cer
+  args:
+    executable: powershell.exe
+
+- name: Fetch the exported certificate
+  fetch:
+    src: C:\CA\MyCARootCert.cer
+    dest: /tmp/MyCARootCert.cer
+    flat: yes
