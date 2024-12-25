@@ -5,11 +5,15 @@
 #    domain_name: "rafael.local" 
 #    safe_mode_password: "{{ lookup('env', 'AD_SAFE') }}"
   roles:
-    - ad
-    - ca
-    - export_cert
+#    - ad
+#    - ca
+#    - export_cert
+#    - install_iis
 
 - name: Install Splunk Standalone on Linux
   hosts: linux
+  become: yes
+  vars:
+    splunk_admin_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
   roles:
-    - install_splunk
+    - install_splunk_standalone

@@ -1,0 +1,40 @@
+---
+# roles/install_splunk_standalone/tasks/main.yml
+
+- name: Install Docker
+  apt:
+    name: docker.io
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Ensure Docker is started
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Pull Splunk Docker image
+  docker_image:
+    name: splunk/splunk
+    tag: latest
+    source: pull
+
+- name: Run Splunk container with certificate
+  docker_container:
+    name: splunk
+    image: splunk/splunk:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "8000:8000"
+      - "8089:8089"
+      - "9997:9997"
+    env:
+      SPLUNK_START_ARGS: "--accept-license"
+      SPLUNK_PASSWORD: "{{ splunk_admin_password }}"
+    volumes:
+      - /opt/splunk:/opt/splunk
+      - /tmp/certificate.cer:/etc/splunk/cert.pem
+  become: yes
