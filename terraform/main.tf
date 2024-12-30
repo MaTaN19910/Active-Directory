@@ -15,8 +15,12 @@ provider "aws" {
 
 resource "aws_instance" "linux_host" {
   ami           = "ami-0e2c8caa4b6378d8c"
-  instance_type = "t2.micro"
+  instance_type = "t2.medium"
   key_name = "linux"
+  root_block_device {
+    volume_size = 64
+  }
+
 
   tags = {
     Name = "Linux_host"

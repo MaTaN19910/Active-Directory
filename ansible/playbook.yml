@@ -1,12 +1,9 @@
 ---
 - name: Install and configure Active Directory Domain Services and Install Microsoft Certification Authority on Windows Server
   hosts: windows
-#  vars: 
-#    domain_name: "rafael.local" 
-#    safe_mode_password: "{{ lookup('env', 'AD_SAFE') }}"
   roles:
 #    - ad
-#    - ca
+    - ca
 #    - export_cert
 #    - install_iis
 
@@ -16,4 +13,4 @@
   vars:
     splunk_admin_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
   roles:
-    - install_splunk_standalone
+#    - install_splunk_standalone

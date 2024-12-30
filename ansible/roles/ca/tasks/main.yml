@@ -1,27 +1,33 @@
 ---
-# roles/ca/tasks/main.yml
-
-- name: Install AD CS Role
+- name: Install AD CS and Certification Authority
   win_feature:
-    name: ADCS-Cert-Authority
+    name:
+      - ADCS-Cert-Authority
+      - ADCS-Web-Enrollment
     state: present
-  tags: 
-    - ca
 
-- name: Configure Certificate Authority
+- name: Configure CAPolicy.inf
+  template:
+    src: CAPolicy.inf.j2
+    dest: C:\Windows\CAPolicy.inf
+
+- name: Install Certification Authority
   win_shell: |
-    $commonName = "MyCA"
-    $distinguishedName = "CN=$commonName,DC=rafael,DC=local"
-    Install-AdcsCertificationAuthority -CAType EnterpriseRootCA -CACommonName "$commonName" -CADistinguishedName "$distinguishedName" -KeyLength 2048 -HashAlgorithm SHA256 -CryptoProviderName "RSA#Microsoft Software Key Storage Provider" -KeySpec 1
+    $ErrorActionPreference = "Stop"
+    $password = ConvertTo-SecureString -String "MesstVS0k9JwrU1Y" -AsPlainText -Force
+    Install-AdcsCertificationAuthority -CAType StandaloneRootCA -CACommonName "RootCA" -KeyLength 2048 -HashAlgorithmName "SHA256"
   args:
     executable: powershell.exe
-  tags: 
-    - ca
+  register: install_ca
 
-- name: Start Certificate Authority Service
+- name: Ensure Certification Authority service is running
   win_service:
     name: CertSvc
     start_mode: auto
     state: started
-  tags: 
-    - ca
+  when: install_ca is succeeded
+
+- name: Debug Install CA
+  debug:
+    var: install_ca.stderr_lines
+  when: install_ca is failed

@@ -1,10 +1,22 @@
 ---
 # roles/export_cert/tasks/main.yml
 
-- name: Export certificate from Windows Server
-  hosts: windows
-  tasks:
-    - name: Copy certificate to Linux server
-      win_copy:
-        src: "C:\\path\\to\\certificate.cer"
-        dest: "/tmp/certificate.cer"
+- name: Export Root CA certificate
+  win_shell: |
+    $Cert = Get-ChildItem -Path Cert:\LocalMachine\CA | Where-Object { $_.Subject -like '*MyCA*' }
+    if ($Cert) {
+        $Cert | Export-Certificate -FilePath C:\CA\MyCARootCert.cer
+    } else {
+        Write-Output "Certificate not found"
+        $host.SetShouldExit(1)
+    }
+  args:
+    executable: powershell.exe
+  register: export_cert_result
+  failed_when: export_cert_result.rc != 0
+
+- name: Fetch the exported certificate
+  fetch:
+    src: C:\CA\MyCARootCert.cer
+    dest: /tmp/MyCARootCert.cer
+    flat: yes

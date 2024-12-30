@@ -1,0 +1,7 @@
+---
+# roles/transfer_cert/tasks/main.yml
+
+- name: Copy certificate to Linux EC2
+  copy:
+    src: /tmp/MyCARootCert.cer
+    dest: /etc/ssl/certs/MyCARootCert.cer

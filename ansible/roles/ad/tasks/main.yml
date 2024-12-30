@@ -4,6 +4,11 @@
     name: AD-Domain-Services
     state: present
 
+- name: Install DNS role
+  win_feature:
+    name: DNS
+    state: present
+
 - name: Include the AD module
   win_shell: Import-Module ADDSDeployment
   args:
@@ -12,17 +17,6 @@
 - name: Promote server to domain controller
   win_shell: |
     $password = ConvertTo-SecureString -String "{{ lookup('env', 'AD_SAFE') }}" -AsPlainText -Force
-    Install-ADDSForest `
-      -DomainName "rafael.local" `
-      -SafeModeAdministratorPassword $password `
-      -InstallDNS `
-      -Force
+    Install-ADDSForest -DomainName "rafael.local" -SafeModeAdministratorPassword $password -Force
   args:
     executable: powershell.exe
-
-- name: Restart the server to apply changes 
-  win_reboot: 
-    msg: "Restarting the server to complete AD DS installation."
-- name: Gather AD DS facts
-  ansible.windows.win_command: Get-ADDomain
-

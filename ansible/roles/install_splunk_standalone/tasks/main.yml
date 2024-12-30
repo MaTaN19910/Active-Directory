@@ -22,19 +22,6 @@
     source: pull
 
 - name: Run Splunk container with certificate
-  docker_container:
-    name: splunk
-    image: splunk/splunk:latest
-    state: started
-    restart_policy: always
-    ports:
-      - "8000:8000"
-      - "8089:8089"
-      - "9997:9997"
-    env:
-      SPLUNK_START_ARGS: "--accept-license"
-      SPLUNK_PASSWORD: "{{ splunk_admin_password }}"
-    volumes:
-      - /opt/splunk:/opt/splunk
-      - /tmp/certificate.cer:/etc/splunk/cert.pem
-  become: yes
+  command: docker run -d -p 8000:8000 -e SPLUNK_START_ARGS="--accept-license" -e SPLUNK_PASSWORD='{{ splunk_admin_password }}' splunk/splunk:latest
+  register: splunk
+
