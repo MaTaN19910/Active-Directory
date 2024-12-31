@@ -1,9 +1,9 @@
 ---
-- name: Install and configure Active Directory Domain Services and Install Microsoft Certification Authority on Windows Server
-  hosts: windows
-  roles:
+#- name: Install and configure Active Directory Domain Services and Install Microsoft Certification Authority on Windows Server
+#  hosts: windows
+#  roles:
 #    - ad
-    - ca
+#    - ca
 #    - export_cert
 #    - install_iis
 
@@ -11,6 +11,9 @@
   hosts: linux
   become: yes
   vars:
-    splunk_admin_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
+    splunk_image: "splunk/splunk:latest"
+    splunk_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
+    ca_cert_path: "/tmp/mycsr.csr"
+    container_name: "splunk_container"
   roles:
-#    - install_splunk_standalone
+    - install_splunk_standalone

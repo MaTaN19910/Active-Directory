@@ -1,27 +1,39 @@
 ---
-# roles/install_splunk_standalone/tasks/main.yml
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
 
-- name: Install Docker
-  apt:
-    name: docker.io
-    state: present
-    update_cache: yes
-  become: yes
+    - name: Ensure Docker is running
+      service:
+        name: docker
+        state: started
+        enabled: true
 
-- name: Ensure Docker is started
-  systemd:
-    name: docker
-    state: started
-    enabled: yes
-  become: yes
+    - name: Pull Splunk Docker image
+      docker_image:
+        name: "{{ splunk_image }}"
+        source: pull
 
-- name: Pull Splunk Docker image
-  docker_image:
-    name: splunk/splunk
-    tag: latest
-    source: pull
+    - name: Run Splunk container
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ splunk_image }}"
+        state: started
+        ports:
+          - "8000:8000"
+        env:
+          SPLUNK_START_ARGS: "--accept-license"
+          SPLUNK_PASSWORD: "{{ splunk_password }}"
+    
+    - name: Copy CA cert to remote host
+      copy: 
+        src: ~/Active-Directory/ansible/roles/install_splunk_standalone/files/my_cert.cer
+        dest: /tmp
+        
 
-- name: Run Splunk container with certificate
-  command: docker run -d -p 8000:8000 -e SPLUNK_START_ARGS="--accept-license" -e SPLUNK_PASSWORD='{{ splunk_admin_password }}' splunk/splunk:latest
-  register: splunk
+    - name: Copy CA certificate to container
+      command: "docker cp {{ ca_cert_path }} {{ container_name }}:/etc/ssl/certs/ca_certificate.crt"
 
+    - name: Add CA certificate to container's trust store
+      command: "docker exec {{ container_name }} update-ca-certificates"
