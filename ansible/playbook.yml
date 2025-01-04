@@ -1,7 +1,7 @@
 ---
-#- name: Install and configure Active Directory Domain Services and Install Microsoft Certification Authority on Windows Server
-#  hosts: windows
-#  roles:
+- name: Install and configure Active Directory Domain Services and Install Microsoft Certification Authority on Windows Server
+  hosts: windows
+  roles:
 #    - ad
 #    - ca
 #    - export_cert
