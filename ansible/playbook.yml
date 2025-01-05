@@ -15,5 +15,8 @@
     splunk_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
     ca_cert_path: "/home/ubuntu/cert/My_Cert.pfx"
     container_name: "splunk_container"
+    splunk_build_type: "enterprise"
+  
   roles:
+    - transfer_cert
     - install_splunk_standalone

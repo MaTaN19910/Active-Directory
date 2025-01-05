@@ -41,9 +41,11 @@
           SPLUNK_START_ARGS: "--accept-license"
           SPLUNK_PASSWORD: "{{ splunk_password }}"
 
-#    - name: Pause for 5 minutes for the docker to run
-#      pause:
-#        minutes: 5
+
+
+    - name: Pause for 5 minutes for the docker to run
+      pause:
+        minutes: 5
 
 #    - name: Configure Splunk with SSL certificate
 #      lineinfile:
@@ -56,6 +58,6 @@
 
 #    - name: Restart Splunk container
 #      docker_container:
-#        name: splunk_container
+#       name: splunk_container
 #        state: restarted
 
