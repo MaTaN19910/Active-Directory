@@ -3,6 +3,7 @@
       apt:
         name: docker.io
         state: present
+        update_cache: true
 
     - name: Ensure Docker is running
       service:
@@ -15,6 +16,17 @@
         name: "{{ splunk_image }}"
         source: pull
 
+    - name: Create a cert dir if it does not exist
+      file:
+        path: /home/ubuntu/cert
+        state: directory
+        mode: '0755'
+
+    - name: Copy CA cert to remote host
+      copy: 
+        src: ~/Active-Directory/ansible/roles/install_splunk_standalone/files/My_Cert.pfx
+        dest: /home/ubuntu/cert/My_Cert.pfx
+
     - name: Run Splunk container
       docker_container:
         name: "{{ container_name }}"
@@ -22,18 +34,28 @@
         state: started
         ports:
           - "8000:8000"
+        volumes:
+          - splunk_data:/opt/splunk
+          - /home/ubuntu/cert/My_Cert.pfx:/etc/splunk/cert.pem
         env:
           SPLUNK_START_ARGS: "--accept-license"
           SPLUNK_PASSWORD: "{{ splunk_password }}"
-    
-    - name: Copy CA cert to remote host
-      copy: 
-        src: ~/Active-Directory/ansible/roles/install_splunk_standalone/files/my_cert.cer
-        dest: /tmp
-        
 
-    - name: Copy CA certificate to container
-      command: "docker cp {{ ca_cert_path }} {{ container_name }}:/etc/ssl/certs/ca_certificate.crt"
+#    - name: Pause for 5 minutes for the docker to run
+#      pause:
+#        minutes: 5
 
-    - name: Add CA certificate to container's trust store
-      command: "docker exec {{ container_name }} update-ca-certificates"
+#    - name: Configure Splunk with SSL certificate
+#      lineinfile:
+#        path: /opt/splunk/etc/system/local/server.conf
+#        line: |
+#          [sslConfig]
+#          enableSplunkdSSL = true
+#          sslCert = /etc/splunk/cert.pem
+
+
+#    - name: Restart Splunk container
+#      docker_container:
+#        name: splunk_container
+#        state: restarted
+

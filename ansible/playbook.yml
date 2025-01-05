@@ -13,7 +13,7 @@
   vars:
     splunk_image: "splunk/splunk:latest"
     splunk_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
-    ca_cert_path: "/tmp/mycsr.csr"
+    ca_cert_path: "/home/ubuntu/cert/My_Cert.pfx"
     container_name: "splunk_container"
   roles:
     - install_splunk_standalone
