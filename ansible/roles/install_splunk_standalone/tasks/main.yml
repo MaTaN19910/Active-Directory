@@ -1,63 +1,35 @@
 ---
-    - name: Ensure Docker is installed
-      apt:
-        name: docker.io
-        state: present
-        update_cache: true
+# roles/run_splunk/tasks/main.yml
 
-    - name: Ensure Docker is running
-      service:
-        name: docker
-        state: started
-        enabled: true
+- name: Pull Splunk Docker image
+  docker_image:
+    name: splunk/splunk
+    tag: latest
+    source: pull
 
-    - name: Pull Splunk Docker image
-      docker_image:
-        name: "{{ splunk_image }}"
-        source: pull
+- name: Verify Certificate File
+  stat:
+    path: /etc/splunk/certs/cacert.pem
+  register: cert_file
 
-    - name: Create a cert dir if it does not exist
-      file:
-        path: /home/ubuntu/cert
-        state: directory
-        mode: '0755'
+- name: Debug Certificate Path
+  debug:
+    var: cert_file
 
-    - name: Copy CA cert to remote host
-      copy: 
-        src: ~/Active-Directory/ansible/roles/install_splunk_standalone/files/My_Cert.pfx
-        dest: /home/ubuntu/cert/My_Cert.pfx
-
-    - name: Run Splunk container
-      docker_container:
-        name: "{{ container_name }}"
-        image: "{{ splunk_image }}"
-        state: started
-        ports:
-          - "8000:8000"
-        volumes:
-          - splunk_data:/opt/splunk
-          - /home/ubuntu/cert/My_Cert.pfx:/etc/splunk/cert.pem
-        env:
-          SPLUNK_START_ARGS: "--accept-license"
-          SPLUNK_PASSWORD: "{{ splunk_password }}"
-
-
-
-    - name: Pause for 5 minutes for the docker to run
-      pause:
-        minutes: 5
-
-#    - name: Configure Splunk with SSL certificate
-#      lineinfile:
-#        path: /opt/splunk/etc/system/local/server.conf
-#        line: |
-#          [sslConfig]
-#          enableSplunkdSSL = true
-#          sslCert = /etc/splunk/cert.pem
-
-
-#    - name: Restart Splunk container
-#      docker_container:
-#       name: splunk_container
-#        state: restarted
-
+- name: Run Splunk container with certificate
+  docker_container:
+    name: splunk
+    image: splunk/splunk:latest
+    state: started
+    restart_policy: always
+    ports:
+      - "8000:8000"
+      - "8089:8089"
+      - "9997:9997"
+    env:
+      SPLUNK_START_ARGS: "--accept-license"
+      SPLUNK_PASSWORD: "{{ splunk_password }}"
+    volumes:
+      - /opt/splunk:/opt/splunk
+      - /etc/splunk/certs/cacert.pem:/etc/splunk/cert.pem
+ 

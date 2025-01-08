@@ -1,0 +1,17 @@
+---
+# roles/install_docker/tasks/main.yml
+
+- name: Update apt repository
+  apt:
+    update_cache: yes
+
+- name: Install Docker
+  apt:
+    name: docker.io
+    state: present
+
+- name: Ensure Docker is started
+  systemd:
+    name: docker
+    state: started
+    enabled: yes

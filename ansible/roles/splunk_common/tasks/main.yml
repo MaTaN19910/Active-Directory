@@ -1,0 +1,40 @@
+---
+# roles/splunk_common/tasks/main.yml
+
+
+- name: Pull Splunk Docker image
+  docker_image:
+    name: splunk/splunk
+    tag: "{{ splunk_build_type }}"
+    source: pull
+
+- name: Debug Variables
+  debug: 
+    msg: 
+      splunk_build_type: "{{ splunk_build_type }}" 
+      splunk_admin_password: "{{ splunk_password }}"
+
+
+- name: Debug Variables
+  debug:
+    msg:
+      splunk_build_type: "{{ splunk_build_type }}"
+      splunk_admin_password: "{{ splunk_password }}"
+
+- name: Run Splunk container with certificate
+  docker_container:
+    name: splunk
+    image: splunk/splunk:{{ splunk_build_type }}
+    state: started
+    restart_policy: always
+    ports:
+      - "8000:8000"
+      - "8089:8089"
+      - "9997:9997"
+    env:
+      SPLUNK_START_ARGS: "--accept-license"
+      SPLUNK_PASSWORD: "{{ splunk_password }}"
+#    volumes:
+#      - /opt/splunk:/opt/splunk
+#      - /etc/splunk/certs/cacert.pem:/opt/splunk/cert.pem
+

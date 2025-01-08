@@ -7,16 +7,26 @@
 #    - export_cert
 #    - install_iis
 
+- name: Transfer certificate to Ubuntu EC2 
+  hosts: linux 
+  become: yes 
+  roles: 
+    - transfer_cert
+
+- name: Install Docker on Ubuntu EC2
+  hosts: linux 
+  become: yes 
+  roles: 
+    - install_docker
+
 - name: Install Splunk Standalone on Linux
   hosts: linux
   become: yes
   vars:
-    splunk_image: "splunk/splunk:latest"
+
     splunk_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
-    ca_cert_path: "/home/ubuntu/cert/My_Cert.pfx"
-    container_name: "splunk_container"
-    splunk_build_type: "enterprise"
+    splunk_build_type: "latest"
+    
   
   roles:
-    - transfer_cert
-    - install_splunk_standalone
+    - splunk_common

@@ -1,7 +1,13 @@
 ---
 # roles/transfer_cert/tasks/main.yml
 
-- name: Copy certificate to EC2
+- name: Create directory for Splunk certificates
+  file:
+    path: /etc/splunk/certs
+    state: directory
+    mode: '0755'
+
+- name: Copy CA certificate to Ubuntu EC2
   copy:
     src: ~/Active-Directory/ansible/roles/install_splunk_standalone/files/My_Cert.pfx
-    dest: /etc/ssl/certs/splunk_cert.pem
+    dest: /etc/splunk/certs/cacert.pem
