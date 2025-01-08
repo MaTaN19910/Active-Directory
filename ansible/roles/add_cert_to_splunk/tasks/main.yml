@@ -1,0 +1,25 @@
+---
+#add cert to splunk docker playbook
+- name: Extract the certificate and private key
+  shell: |
+    openssl pkcs12 -in /opt/splunk/certs/My_Cert.pfx -clcerts -nokeys -out /opt/splunk/certs/splunk_cert.pem
+    openssl pkcs12 -in /opt/splunk/certs/My_Cert.pfx -nocerts -out /opt/splunk/certs/splunk_key.pem -nodes
+  args:
+    creates: /opt/splunk/certs/splunk_cert.pem
+
+- name: Import certificate into Docker Splunk instance
+  docker_container:
+    name: splunk-container             
+    state: started
+    volumes:
+      - /opt/splunk/certs:/opt/splunk/etc/auth:ro
+
+- name: Stop Splunk service
+  docker_container:
+    name: splunk-container
+    state: stopped
+
+- name: start Splunk service
+  docker_container:
+    name: splunk-container
+    state: started

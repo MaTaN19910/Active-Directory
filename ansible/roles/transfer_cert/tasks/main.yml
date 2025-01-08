@@ -3,11 +3,11 @@
 
 - name: Create directory for Splunk certificates
   file:
-    path: /etc/splunk/certs
+    path: /opt/splunk/certs
     state: directory
     mode: '0755'
 
 - name: Copy CA certificate to Ubuntu EC2
   copy:
     src: ~/Active-Directory/ansible/roles/install_splunk_standalone/files/My_Cert.pfx
-    dest: /etc/splunk/certs/cacert.pem
+    dest: /opt/splunk/certs/My_Cert.pfx

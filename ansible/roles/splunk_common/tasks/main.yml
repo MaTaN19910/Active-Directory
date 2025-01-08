@@ -23,7 +23,7 @@
 
 - name: Run Splunk container with certificate
   docker_container:
-    name: splunk
+    name: splunk-container
     image: splunk/splunk:{{ splunk_build_type }}
     state: started
     restart_policy: always
@@ -34,7 +34,9 @@
     env:
       SPLUNK_START_ARGS: "--accept-license"
       SPLUNK_PASSWORD: "{{ splunk_password }}"
-#    volumes:
-#      - /opt/splunk:/opt/splunk
-#      - /etc/splunk/certs/cacert.pem:/opt/splunk/cert.pem
+
+
+- name: pause to let splunk standalone up
+  ansible.builtin.wait_for:
+    timeout: 120
 
