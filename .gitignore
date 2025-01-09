@@ -6,3 +6,5 @@ hosts
 linux.pem
 mycsr.csr
 server.conf.j2
+My_Cert.pem
+My_Cert.pfx
