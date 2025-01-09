@@ -7,14 +7,6 @@
     tag: latest
     source: pull
 
-- name: Verify Certificate File
-  stat:
-    path: /etc/splunk/certs/cacert.pem
-  register: cert_file
-
-- name: Debug Certificate Path
-  debug:
-    var: cert_file
 
 - name: Run Splunk container with certificate
   docker_container:
@@ -29,7 +21,39 @@
     env:
       SPLUNK_START_ARGS: "--accept-license"
       SPLUNK_PASSWORD: "{{ splunk_password }}"
-    volumes:
-      - /opt/splunk:/opt/splunk
-      - /etc/splunk/certs/cacert.pem:/etc/splunk/cert.pem
- 
+
+- name: pause to let splunk standalone up
+  ansible.builtin.wait_for:
+    timeout: 120
+
+- name: Copy CA certificate to Splunk container host
+  copy:
+    src: ~/Active-Directory/ansible/roles/install_splunk_standalone/files/My_Cert.pem
+    dest: /tmp/My_Cert.pem
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy CA certificate into Splunk container
+  command: >
+    docker cp /tmp/My_Cert.pem splunk:/opt/splunk/etc/auth/My_Cert.pem
+
+
+- name: Update Splunk SSL configuration
+  template:
+    src: ~/Active-Directory/ansible/roles/install_splunk_standalone/templates/server.conf.j2
+    dest: /tmp/server.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Copy server.conf into Splunk container
+  command: >
+    docker cp /tmp/server.conf splunk:/opt/splunk/etc/system/local/server.conf
+
+    
+- name: Restart Splunk container
+  shell: docker restart splunk
+
+

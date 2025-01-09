@@ -26,10 +26,6 @@
     splunk_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
     splunk_build_type: "latest" 
   roles:
-    - splunk_common
+    - install_splunk_standalone
 
-- name: Install Splunk Standalone on Linux
-  hosts: linux
-  become: yes
-  roles:
-    - add_cert_to_splunk
+

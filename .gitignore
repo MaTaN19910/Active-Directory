@@ -5,3 +5,4 @@ terraform.tfstate
 hosts
 linux.pem
 mycsr.csr
+server.conf.j2

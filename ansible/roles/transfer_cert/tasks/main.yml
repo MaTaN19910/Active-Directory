@@ -9,5 +9,5 @@
 
 - name: Copy CA certificate to Ubuntu EC2
   copy:
-    src: ~/Active-Directory/ansible/roles/install_splunk_standalone/files/My_Cert.pfx
-    dest: /opt/splunk/certs/My_Cert.pfx
+    src: /home/matan/Active-Directory/ansible/roles/install_splunk_standalone/files/My_Cert.pem
+    dest: /opt/splunk/certs/My_Cert.pem
