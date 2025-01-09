@@ -2,22 +2,11 @@
 - name: Install and configure Active Directory Domain Services and Install Microsoft Certification Authority on Windows Server
   hosts: windows
   roles:
-#    - ad
-#    - ca
-#    - export_cert
-#    - install_iis
+    - ad
+    - ca
+    - export_cert
+    - install_iis
 
-- name: Transfer certificate to Ubuntu EC2 
-  hosts: linux 
-  become: yes 
-  roles: 
-    - transfer_cert
-
-- name: Install Docker on Ubuntu EC2
-  hosts: linux 
-  become: yes 
-  roles: 
-    - install_docker
 
 - name: Install Splunk Standalone on Linux
   hosts: linux
@@ -26,6 +15,8 @@
     splunk_password: "{{ lookup('env', 'SPLUNK_ADMIN') }}"
     splunk_build_type: "latest" 
   roles:
+    - transfer_cert
+    - install_docker
     - install_splunk_standalone
 
 
